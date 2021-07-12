@@ -153,7 +153,7 @@ pipeline {
       }
       steps {
         echo 'Compiling vote app..'
-        dir(path: 'vote') {
+        dir('vote') {
           sh 'pip install -r requirements.txt'
         }
 
@@ -166,16 +166,30 @@ pipeline {
           image 'python:2.7.16-slim'
           args '--user root'
         }
-
       }
       when {
         changeset '**/vote/**'
       }
       steps {
         echo 'Running Unit Tests on vote app..'
-        dir(path: 'vote') {
+        dir('vote') {
           sh 'pip install -r requirements.txt'
           sh 'nosetests -v'
+        }
+
+      }
+    }
+
+    stage('vote integration') {
+      agent any
+      when {
+        changeset '**/vote/**'
+        branch 'master'
+      }
+      steps {
+        echo 'Running Integration Tests on vote app..'
+        dir('vote') {
+          sh 'integration_test.sh'
         }
 
       }
